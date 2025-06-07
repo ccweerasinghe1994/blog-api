@@ -1,379 +1,765 @@
-Of course. Here is a detailed explanation of the HTTP headers shown in the image.
+# Blog API - Complete Build Guide & Documentation
 
-These headers are pieces of information sent by a web server in response to a request from a client (like your web browser). They provide metadata about the response itself.
+A production-ready REST API built with Node.js, TypeScript, and Express.js for managing blog posts. This README provides comprehensive step-by-step instructions for recreating this application from scratch, documenting all architectural decisions and implementation patterns.
 
-### Key-Value
-This simply labels the columns. The 'Key' is the name of the header, and the 'Value' is the information it contains.
+## 📚 Documentation Structure
+
+This project uses a Memory Bank system for comprehensive documentation:
+
+- **[Project Brief](./memory-bank/projectbrief.md)** - Core requirements and project scope
+- **[Technical Context](./memory-bank/techContext.md)** - Technology stack and development environment
+- **[System Patterns](./memory-bank/systemPatterns.md)** - Architecture patterns and design decisions
+- **[Active Context](./memory-bank/activeContext.md)** - Current work focus and recent changes
+- **[Progress Tracking](./memory-bank/progress.md)** - Development phases and completion status
+
+## 🎯 Project Overview
+
+### Current Status: 65% Complete
+- ✅ **Foundation** (100%) - Project setup, TypeScript, Express.js
+- ✅ **Middleware Infrastructure** (100%) - Security, performance, parsing middleware
+- 🚧 **Database Layer** (0%) - Current priority
+- 🚧 **API Implementation** (0%) - CRUD operations
+- 🚧 **Quality & Testing** (0%) - Validation, testing, documentation
+
+### Key Features Implemented
+- **Production-Ready Middleware Stack** - 7 comprehensive middleware components
+- **Security-First Architecture** - Helmet.js with 15+ security headers
+- **Performance Optimization** - Response compression and rate limiting
+- **Development Experience** - Hot reloading, TypeScript, path mapping
+- **Configuration Management** - Environment-based configuration
+
+## 🛠 Technology Stack
+
+| Category | Technology | Version | Purpose |
+|----------|------------|---------|---------|
+| **Runtime** | Node.js | Latest | JavaScript runtime |
+| **Language** | TypeScript | 5.8.3 | Type safety and modern JS |
+| **Framework** | Express.js | 5.1.0 | HTTP server framework |
+| **Security** | Helmet.js | 8.1.0 | Security headers |
+| **Rate Limiting** | express-rate-limit | 7.5.0 | API protection |
+| **CORS** | cors | 2.8.5 | Cross-origin requests |
+| **Compression** | compression | 1.8.0 | Response optimization |
+| **Parsing** | cookie-parser | 1.4.7 | Cookie handling |
+| **Environment** | dotenv | 16.5.0 | Configuration |
+| **Development** | nodemon | 3.1.10 | Hot reloading |
+
+## 📁 Project Structure
+
+```
+blog-api/
+├── src/                           # TypeScript source code
+│   ├── config/                    # ✅ Configuration management
+│   │   └── index.ts              # Environment configuration
+│   ├── middleware/                # ✅ Production middleware stack
+│   │   ├── compressionMiddleware.ts    # Response compression
+│   │   ├── cookieParserMiddleware.ts   # Cookie parsing
+│   │   ├── corsMiddleware.ts           # CORS handling
+│   │   ├── helmetMiddleware.ts         # Security headers
+│   │   ├── jsonMiddleware.ts           # JSON body parsing
+│   │   ├── rateLimiterMiddleware.ts    # Rate limiting
+│   │   ├── urlMiddleware.ts            # URL encoding
+│   │   └── index.ts                    # Middleware exports
+│   └── server.ts                  # ✅ Express application entry
+├── memory-bank/                   # 📚 Project documentation
+│   ├── projectbrief.md           # Core requirements
+│   ├── techContext.md             # Technology details
+│   ├── systemPatterns.md          # Architecture patterns
+│   ├── activeContext.md           # Current work context
+│   └── progress.md                # Development tracking
+├── dist/                          # Compiled TypeScript output
+├── .env                           # Environment variables
+├── package.json                   # Project configuration
+├── tsconfig.json                  # TypeScript configuration
+├── nodemon.json                   # Development server config
+└── Blog API.postman_collection.json  # API testing
+```
 
 ---
 
-### X-Powered-By: Express
-This is a non-standard header that reveals the technology used on the web server.
+# 🏗 Complete Step-by-Step Build Guide
 
-* **Value:** `Express`
-* **Explanation:** This indicates that the web application running on the server is built using **Express**, which is a popular web application framework for Node.js. It's often removed for security reasons to avoid giving attackers information about the server's stack.
+This section provides comprehensive instructions for recreating the entire blog API from scratch, explaining every decision and pattern used in the development process.
 
----
+## Phase 1: Project Foundation
 
-### Content-Type: text/html; charset=utf-8
-This header specifies the media type of the resource being sent.
+### Step 1: Initialize Project Structure
 
-* **Value:** `text/html; charset=utf-8`
-* **Explanation:**
-    * `text/html`: The content is an HTML document.
-    * `charset=utf-8`: The character encoding is **UTF-8**, which is a universal character encoding that can represent almost any character.
+```bash
+# Create project directory
+mkdir blog-api
+cd blog-api
 
----
+# Initialize npm project
+npm init -y
 
-### Content-Length: 12
-This header indicates the size of the response body in bytes.
+# Create source directory structure
+mkdir src
+mkdir src/config
+mkdir src/middleware
+mkdir memory-bank
+mkdir dist
+```
 
-* **Value:** `12`
-* **Explanation:** The body of the HTTP response is **12 bytes** long. This is a very small response, likely just a short string of text like "Hello World!".
+### Step 2: Configure Package.json
 
----
+**Decision**: Use CommonJS modules for better Node.js compatibility
 
-### ETag: W/"c-Lve95gjOVATpfV8EL5X4nxwKHE"
-The ETag (Entity Tag) is an identifier for a specific version of a resource. It allows for more efficient caching.
+```json
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "Node.js TypeScript REST API for blog management",
+  "main": "dist/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon"
+  }
+}
+```
 
-* **Value:** `W/"c-Lve95gjOVATpfV8EL5X4nxwKHE"`
-* **Explanation:**
-    * When a browser first requests a file, the server sends this ETag. If the browser needs to request the same file again, it can send this ETag value back to the server.
-    * If the file hasn't changed, the server can respond with a `304 Not Modified` status, telling the browser to use its cached version, which saves bandwidth.
-    * The `W/` prefix indicates a "weak" ETag, meaning the two resources are semantically equivalent, but not necessarily byte-for-byte identical.
+**Rationale**: CommonJS chosen over ES modules for:
+- Better compatibility with Node.js ecosystem
+- Simpler require/export syntax for beginners
+- Established patterns in Express.js applications
 
----
+### Step 3: Install Core Dependencies
 
-### Date: Sat, 07 Jun 2025 05:59:27 GMT
-This header shows the date and time when the response was generated on the server.
+```bash
+# Core dependencies
+npm install express dotenv
 
-* **Value:** `Sat, 07 Jun 2025 05:59:27 GMT`
-* **Explanation:** The response was generated on Saturday, June 7th, 2025, at 05:59:27 Greenwich Mean Time (GMT).
+# TypeScript and development tools
+npm install -D typescript @types/node @types/express
+npm install -D nodemon ts-node tsconfig-paths prettier
+```
 
----
+**Decision Rationale**:
+- **express**: Industry-standard web framework
+- **dotenv**: Environment configuration management
+- **typescript**: Type safety and modern JavaScript features
+- **nodemon + ts-node**: Development experience with hot reloading
 
-### Connection: keep-alive
-This header controls whether the network connection stays open after the current transaction finishes.
+### Step 4: Configure TypeScript
 
-* **Value:** `keep-alive`
-* **Explanation:** This tells the client that it can reuse the same TCP connection to send further requests to the server, rather than opening a new one for each request. This improves performance by reducing the overhead of establishing new connections.
+Create `tsconfig.json`:
 
----
+```json
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
 
-### Keep-Alive: timeout=5
-This header provides additional information about the `keep-alive` connection.
+**Key Decisions**:
+- **ES2016 target**: Modern enough for features, old enough for compatibility
+- **Strict mode**: Maximum type safety
+- **Path mapping**: Clean imports with `@/*` syntax
 
-* **Value:** `timeout=5`
-* **Explanation:** This suggests that the server will close the persistent connection if it remains idle for **5 seconds**.
+### Step 5: Development Environment Setup
 
+Create `nodemon.json`:
 
-```ts
-import { APP_CONFIG } from '@/config';
-import cors, { CorsOptions } from 'cors';
+```json
+{
+  "watch": ["src", ".env"],
+  "ext": "ts,js,json",
+  "ignore": ["dist", "node_modules"],
+  "exec": "ts-node -r tsconfig-paths/register src/server.ts"
+}
+```
+
+Create `.env`:
+
+```env
+PORT=3000
+NODE_ENV=development
+WHITELIST_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+RATE_LIMIT_MAX=100
+```
+
+## Phase 2: Express.js Foundation
+
+### Step 6: Configuration Management
+
+Create `src/config/index.ts`:
+
+```typescript
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 /**
- * CORS (Cross-Origin Resource Sharing) Configuration
- *
- * Configures CORS policy to control which origins are allowed to access the API.
- * This implements a security layer that prevents unauthorized cross-origin requests
- * while allowing legitimate clients to access the API endpoints.
- *
- * @security
- * - Development mode: Allows all origins for easier development
- * - Production mode: Only allows whitelisted origins from environment config
- * - Non-browser requests: Allows requests without origin header (e.g., mobile apps, Postman)
- *
- * @behavior
- * The origin validation function receives:
- * - `origin`: The origin of the requesting client (undefined for same-origin or non-browser requests)
- * - `callback`: Function to call with (error, allowed) parameters
- *
- * Allowed scenarios:
- * 1. Development environment (NODE_ENV === 'development')
- * 2. Requests without origin header (!origin) - typically server-to-server or mobile apps
- * 3. Origins explicitly listed in WHITELIST_ORIGINS environment variable
- *
- * Blocked scenarios:
- * - Production requests from origins not in the whitelist
- * - Malicious cross-origin requests from unauthorized domains
- *
- * @example Environment Configuration
- * ```
- * NODE_ENV=production
- * WHITELIST_ORIGINS=[https://myblog.com,https://admin.myblog.com]
- * ```
+ * Application configuration object
+ * Centralizes all environment variable access
  */
-const corsOptions: CorsOptions = {
-  origin(origin, callback) {
-    // Allow all origins in development mode for easier testing
-    if (APP_CONFIG.NODE_ENV === 'development') {
-      callback(null, true);
-      return;
-    }
-
-    // Allow requests without origin header (server-to-server, mobile apps, etc.)
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-
-    // Check if the origin is in the whitelist for production
-    if (APP_CONFIG.WHITELIST_ORIGINS.includes(origin)) {
-      callback(null, true);
-      return;
-    }
-
-    // Reject unauthorized origins with detailed error logging
-    const errorMessage = `CORS error: ${origin} is not allowed by CORS policy`;
-    console.error(errorMessage);
-    callback(new Error(errorMessage), false);
-  },
-};
-
-export const corsMiddleware = cors(corsOptions);
+export const APP_CONFIG = {
+  PORT: parseInt(process.env.PORT || '3000', 10),
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  WHITELIST_ORIGINS: process.env.WHITELIST_ORIGINS?.split(',') || ['http://localhost:3000'],
+  RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
+} as const;
 ```
 
+**Design Pattern**: Centralized configuration
+- Single source of truth for environment variables
+- Type-safe configuration access
+- Default values for development
 
+### Step 7: Basic Express Server
 
-```ts
-app.use(corsMiddleware);
-```
+Create `src/server.ts`:
 
-Of course. Let's break down the `Vary: Origin` HTTP header.
-
-### `Vary` Header Explained
-
-The `Vary` HTTP response header is a crucial component for caching mechanisms, both in browsers and on intermediate proxy servers (like CDNs). It tells the cache that a different version of the response should be served depending on the value of one or more request headers sent by the client.
-
-In simple terms, the `Vary` header says: "When you decide whether to serve a cached response for this URL, don't just look at the URL itself. You must also check the value of the header(s) I specify. If the request has a different value for these headers, you might need to fetch a fresh version from the server instead of using the cache."
-
-### `Vary: Origin`
-
-When the `Vary` header has the value `Origin`, it specifically means:
-
-**"The response to this request will differ based on the value of the `Origin` request header."**
-
-#### Why is this important?
-
-This is almost always related to **Cross-Origin Resource Sharing (CORS)**.
-
-Here's a typical scenario:
-
-1.  A web page at `https://my-awesome-site.com` wants to fetch data from an API at `https://api.example.com/data`.
-2.  The browser makes a request to the API. Because the domains are different, this is a "cross-origin" request. The browser automatically includes an `Origin` header in the request:
-    ```
-    Origin: https://my-awesome-site.com
-    ```
-3.  The API server at `api.example.com` receives this request. It checks its list of allowed origins.
-    * **If `my-awesome-site.com` is allowed**, the server responds with the requested data and includes the `Access-Control-Allow-Origin: https://my-awesome-site.com` header.
-    * **If a request comes from a different, unapproved origin** (e.g., `https://malicious-site.com`), the server would *not* include the `Access-Control-Allow-Origin` header in its response, and the browser would block the request.
-
-#### The Caching Problem `Vary: Origin` Solves
-
-Imagine a cache (like a CDN) sits between the user and the API server.
-
-* **First Request (Allowed):** The request from `my-awesome-site.com` comes in. The cache forwards it to the API, gets the response (with `Access-Control-Allow-Origin: https://my-awesome-site.com`), and caches it.
-* **Second Request (Disallowed, but from a different user):** Now, a request comes from `https://another-site.com` for the same API URL (`https://api.example.com/data`).
-
-**Without `Vary: Origin`**, the cache would see it's for the same URL and mistakenly serve the cached version from the first request. This cached response includes `Access-Control-Allow-Origin: https://my-awesome-site.com`. The browser for the user on `another-site.com` would see that the allowed origin doesn't match its own origin and block the response. The user on the second site gets a broken experience.
-
-**With `Vary: Origin`**, the cache knows better. It sees that the `Origin` header in the second request (`https://another-site.com`) is different from the `Origin` of the request it has cached. Therefore, it cannot use the cached version and must forward the new request to the API server to get the correct response for this different origin.
-
-**In summary, `Vary: Origin` ensures that caches correctly store and serve different versions of a response based on which origin is requesting the resource, preventing incorrect CORS-related caching issues.**
-
-```ts
-app.use(helmetMiddleware);
-```
-
-Of course. Adding Helmet to an Express application is an excellent security practice. It sets a number of HTTP headers to help protect your app from common web vulnerabilities. Let's go through the headers you've listed one by one.
-
-### Content-Security-Policy (CSP)
-This is one of the most powerful security headers. It gives you fine-grained control over which resources (scripts, styles, images, etc.) a browser is allowed to load for your page. Its goal is to mitigate Cross-Site Scripting (XSS) and data injection attacks.
-
-Your policy: `default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests`
-
-Let's break it down:
-* `default-src 'self'`: By default, resources can only be loaded from the same origin (i.e., the same domain, protocol, and port). This is a fallback for other directives that aren't specified.
-* `base-uri 'self'`: Restricts the URLs that can be used in a document's `<base>` element.
-* `font-src 'self' https: data:`: Fonts can be loaded from your own origin (`'self'`), from any secure origin (`https:`), or from `data:` URIs.
-* `form-action 'self'`: Restricts the URLs which can be used as the target of a form submission.
-* `frame-ancestors 'self'`: Prevents other sites from embedding your page in an `<iframe>`. This is a modern replacement for the `X-Frame-Options` header and helps prevent "clickjacking."
-* `img-src 'self' data:`: Images can only be loaded from your own origin or from `data:` URIs.
-* `object-src 'none'`: Prevents the loading of plugins like Flash or Java via `<object>`, `<embed>`, or `<applet>` tags. This is a strong security measure.
-* `script-src 'self'`: Scripts can only be loaded from your own origin.
-* `script-src-attr 'none'`: Disables the use of inline event handlers (like `onclick`).
-* `style-src 'self' https: 'unsafe-inline'`: Stylesheets can be loaded from your own origin, any secure origin (`https:`), or from inline `<style>` blocks and `style` attributes (`'unsafe-inline'`). Note that `'unsafe-inline'` is often needed for compatibility but is less secure.
-* `upgrade-insecure-requests`: Tells browsers to automatically upgrade any HTTP requests to HTTPS on your site.
-
-### Cross-Origin-Opener-Policy: same-origin
-This header helps isolate your page from potentially malicious cross-origin windows. `same-origin` ensures that if your page is opened from a cross-origin site, the `window.opener` property will be `null`, preventing the new page from being able to control the page that opened it.
-
-### Cross-Origin-Resource-Policy: same-origin
-This header prevents other domains from loading your resources (e.g., loading an image from your site on their site). `same-origin` specifies that resources can only be requested from the same site. It helps mitigate speculative side-channel attacks like Spectre.
-
-### Origin-Agent-Cluster: ?1
-This is a newer header that hints to the browser that your site would benefit from being put into its own "agent cluster" based on its origin. An agent cluster is a group of browsing contexts with a shared memory space. Opting in (`?1` is a way of saying `true`) can improve performance and isolation.
-
-### Referrer-Policy: no-referrer
-This controls how much referrer information (the URL of the previous page) is included with requests. `no-referrer` is the strictest policy; it ensures that the `Referer` header is completely omitted from all requests originating from your page, enhancing user privacy.
-
-### Strict-Transport-Security (HSTS): max-age=31536000; includeSubDomains
-This is a critical security header for any site that uses HTTPS.
-* `max-age=31536000`: This tells the browser that for the next 1 year (31,536,000 seconds), it should *only* communicate with your site using HTTPS. It will automatically convert any `http://` requests to `https://`.
-* `includeSubDomains`: This policy applies to all of your site's subdomains as well.
-
-### X-Content-Type-Options: nosniff
-This header prevents the browser from trying to guess the `Content-Type` of a resource if it's different from what the server declared. Forcing the browser to strictly adhere to the server's `Content-Type` helps prevent attacks where a malicious file (like a script) is disguised as a different file type (like an image).
-
-### X-DNS-Prefetch-Control: off
-By default, browsers may "prefetch" the DNS for links on a page to speed up navigation. Setting this to `off` disables this behavior. This can be a minor privacy enhancement at a small performance cost.
-
-### X-Download-Options: noopen
-This is a header specifically for Internet Explorer. It tells IE not to offer an "Open" button for downloads directly from the browser, forcing the user to save the file first. This can help prevent users from accidentally running malicious files they download from your site.
-
-### X-Frame-Options: SAMEORIGIN
-This is the older header for preventing clickjacking. It prevents your page from being displayed in an `<iframe>` on another domain. The `frame-ancestors` directive in your CSP is the modern, more flexible replacement, but it's good practice to include this for older browsers.
-
-### X-Permitted-Cross-Domain-Policies: none
-This is a legacy header that controls how Adobe products like Flash Player or Acrobat can handle data from your domain. `none` is the most restrictive setting, preventing any cross-domain policies.
-
-### X-XSS-Protection: 0
-This header disables the browser's built-in XSS auditor. This might seem counterintuitive, but these auditors can sometimes introduce security vulnerabilities of their own. The modern best practice is to disable this legacy filter (`0`) and rely on a strong Content Security Policy (CSP), which you are doing.
-
-```ts
-app.use(compressionMiddleware);
-```
-
-Excellent question. The `Vary: Accept-Encoding` header is one of the most common and important uses of the `Vary` header, especially for web performance.
-
-Here’s a detailed breakdown.
-
-### The Two Headers Involved
-
-First, let's understand the two separate headers at play:
-
-1.  **`Accept-Encoding` (A Request Header):**
-    * **Who sends it?** The client (e.g., a web browser).
-    * **What does it do?** It tells the server which content compression algorithms the client can understand.
-    * **Example:** `Accept-Encoding: gzip, deflate, br`
-    * **Meaning:** "Hey server, I can handle content compressed with Gzip, Deflate, or Brotli. If you can send me a compressed version, please do, as it will be smaller and faster to download."
-
-2.  **`Vary` (A Response Header):**
-    * **Who sends it?** The server.
-    * **What does it do?** It tells any cache (the browser's cache or a CDN) that the response for a URL can differ based on the value of a specific *request* header. It's a key for creating a unique cache entry.
-
-### Combining Them: `Vary: Accept-Encoding`
-
-When a server sends the `Vary: Accept-Encoding` header in its response, it is giving a critical instruction to all caching layers:
-
-> **"When you cache this file, don't just use the URL as the key. The correct version of this file to serve depends on the `Accept-Encoding` header sent by the client. You must store a separate version of this file for each different `Accept-Encoding` value you see."**
-
-#### A Practical Scenario to Illustrate
-
-Imagine you have a website `https://example.com` and a user wants to download `style.css`.
-
-**Scenario 1: A modern browser makes a request.**
-
-1.  **Browser Request:**
-    ```http
-    GET /style.css HTTP/1.1
-    Host: example.com
-    Accept-Encoding: gzip, deflate, br
-    ```
-2.  **Server Response:** The server sees the browser can handle Gzip. It compresses `style.css` and sends back a smaller file.
-    ```http
-    HTTP/1.1 200 OK
-    Content-Type: text/css
-    Content-Encoding: gzip  <-- Tells the browser it's gzipped
-    Content-Length: 1500    <-- The small, compressed size
-    Vary: Accept-Encoding   <-- The crucial instruction for caches
-    
-    [...gzipped content...]
-    ```
-3.  **Cache Action:** A CDN or the browser cache sees `Vary: Accept-Encoding`. It creates a cache entry keyed by both the URL (`/style.css`) **and** the request's `Accept-Encoding` header.
-
-**Scenario 2: An old proxy or browser makes a request for the same file.**
-
-1.  **Browser Request:** This older client doesn't support compression.
-    ```http
-    GET /style.css HTTP/1.1
-    Host: example.com
-    Accept-Encoding: identity  <-- (or no header at all)
-    ```
-2.  **Cache Check:** The cache sees the request for `/style.css`. Because of the `Vary: Accept-Encoding` rule from the previous response, it **cannot** serve the Gzipped version it has stored. The `Accept-Encoding` value is different. The cache must forward the request to the origin server.
-3.  **Server Response:** The server sees the client can't handle compression. It sends the uncompressed file.
-    ```http
-    HTTP/1.1 200 OK
-    Content-Type: text/css
-    Content-Length: 10000   <-- The original, larger size
-    Vary: Accept-Encoding
-    
-    [...uncompressed CSS text...]
-    ```
-4.  **Cache Action:** The cache now creates a *second* cache entry for `/style.css`, this one associated with the `identity` value for `Accept-Encoding`.
-
-### Why is this essential?
-
-Without `Vary: Accept-Encoding`, a cache might mistakenly serve the compressed (gzipped) version of a file to a client that doesn't understand it, resulting in a broken or un-rendered page. By using this header, you ensure that clients **only receive content in a format they can understand**, while still allowing modern clients to benefit from the significant performance boost of compression. It is a fundamental header for proper content negotiation and caching.
-
-```ts
+```typescript
+import express from 'express';
 import { APP_CONFIG } from '@/config';
-import { RequestHandler } from 'express';
-import { rateLimit } from 'express-rate-limit';
 
-export const apiLimiter: RequestHandler = rateLimit({
-  windowMs: 60 * 1000,
-  limit: APP_CONFIG.RATE_LIMIT_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error:
-      'you have exceeded the request limit for this endpoint. Please try again later.',
-  },
+const app = express();
+
+// Basic health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Blog API Server Running',
+    timestamp: new Date().toISOString(),
+    environment: APP_CONFIG.NODE_ENV
+  });
 });
 
-export const rateLimiterMiddleware = apiLimiter;
+// Start server
+app.listen(APP_CONFIG.PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${APP_CONFIG.PORT}`);
+  console.log(`📱 Environment: ${APP_CONFIG.NODE_ENV}`);
+});
 ```
 
+**Architecture Decision**: Single server file initially
+- Simple and understandable starting point
+- Easy to extend with middleware and routes
+- Clear separation of concerns will come later
 
-```ts
-app.use(rateLimiterMiddleware);
+## Phase 3: Production Middleware Stack
+
+### Step 8: Install Middleware Dependencies
+
+```bash
+# Middleware packages
+npm install helmet cors compression express-rate-limit cookie-parser
+
+# TypeScript definitions
+npm install -D @types/cors @types/compression @types/cookie-parser
 ```
 
-Excellent. These headers are part of a standardized draft specification for communicating API rate limits. They provide a clear and machine-readable way for a client to understand its current rate limit status. This is a move to standardize over older, ad-hoc headers like `X-RateLimit-Limit`.
+### Step 9: Security Middleware (Helmet)
 
-Let's break down each header you've provided.
+Create `src/middleware/helmetMiddleware.ts`:
 
-### `RateLimit-Limit: 100`
+```typescript
+import helmet from 'helmet';
+import { Request, Response, NextFunction } from 'express';
 
-* **Purpose:** This header tells the client the **total number of requests** they are allowed to make within a given time window.
-* **Value:** `100`
-* **Explanation:** You are permitted to make a total of **100 requests** in the current time period.
+/**
+ * Security middleware using Helmet.js
+ * 
+ * Provides 15+ security headers to protect against common vulnerabilities:
+ * - XSS attacks via Content-Security-Policy
+ * - Click-jacking via X-Frame-Options
+ * - MIME-type confusion via X-Content-Type-Options
+ * - DNS prefetch control for privacy
+ * - And many more security enhancements
+ */
+export const helmetMiddleware = helmet({
+  // Content Security Policy - prevents XSS attacks
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  
+  // Additional security headers
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  
+  // Frame protection
+  frameguard: { action: 'deny' },
+  
+  // MIME type protection
+  noSniff: true,
+  
+  // XSS filtering
+  xssFilter: true,
+});
+```
 
-### `RateLimit-Policy: 100;w=60`
+**Security Architecture**: Defense-in-depth approach
+- Multiple layers of protection
+- Industry-standard security headers
+- Configurable policies for different environments
 
-* **Purpose:** This header defines the specific policy that the server is enforcing. It gives more detail about the limit declared in `RateLimit-Limit`.
-* **Value:** `100;w=60`
-* **Explanation:**
-    * `100`: This corresponds to the request quota (the same as `RateLimit-Limit`).
-    * `w=60`: This defines the time window in seconds. The `w` stands for **window**.
-    * **In plain English:** The policy is a quota of **100 requests per 60-second window**. This is a "sliding window" algorithm, meaning at any given moment, the server looks back at the last 60 seconds to see if you have exceeded 100 requests.
+### Step 10: Rate Limiting Middleware
 
-### `RateLimit-Remaining: 99`
+Create `src/middleware/rateLimiterMiddleware.ts`:
 
-* **Purpose:** This header informs the client how many requests they **still have left** in the current time window.
-* **Value:** `99`
-* **Explanation:** You have **99 requests remaining** before you hit your limit of 100. This value will decrease with each subsequent API call you make.
+```typescript
+import rateLimit from 'express-rate-limit';
+import { APP_CONFIG } from '@/config';
 
-### `RateLimit-Reset: 60`
+/**
+ * Rate limiting middleware for API protection
+ * 
+ * Protects against:
+ * - DDoS attacks
+ * - Brute force attempts
+ * - API abuse
+ * - Resource exhaustion
+ */
+export const rateLimiterMiddleware = rateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  max: APP_CONFIG.RATE_LIMIT_MAX, // Configurable limit
+  
+  // Response headers for client awareness
+  standardHeaders: true,
+  legacyHeaders: false,
+  
+  // Custom error message
+  message: {
+    error: 'Too many requests',
+    message: 'You have exceeded the rate limit. Please try again later.',
+    retryAfter: 60
+  },
+  
+  // Rate limit info in headers
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Rate limit exceeded',
+      limit: APP_CONFIG.RATE_LIMIT_MAX,
+      windowMs: 60 * 1000,
+      retryAfter: Math.round(60)
+    });
+  }
+});
+```
 
-* **Purpose:** This header tells the client the **number of seconds remaining** until the rate limit window resets and the request quota is restored.
-* **Value:** `60`
-* **Explanation:** Your request quota will be reset back to 100 in **60 seconds**. This value does not represent the size of the window itself, but rather the time from *now* until the window slides forward enough for your oldest requests to "fall off" and your quota to be replenished.
+**Performance Strategy**: Configurable rate limiting
+- Environment-based limits
+- Informative error responses
+- Client-friendly retry information
 
-### Summary of the Current State
+### Step 11: CORS Middleware
 
-Based on these headers, we can understand the full picture of your rate limit status:
+Create `src/middleware/corsMiddleware.ts`:
 
-> The API allows you **100 requests every 60 seconds**. You have just made your first request, leaving you with **99 requests**. Your request allowance will be fully restored in **60 seconds**.
+```typescript
+import cors from 'cors';
+import { APP_CONFIG } from '@/config';
 
-This set of headers is extremely useful for client-side applications. A well-behaved client can read these headers to automatically slow down or pause its requests to avoid hitting the rate limit and receiving a `429 Too Many Requests` error, leading to a more robust and reliable integration with the API.
+/**
+ * CORS (Cross-Origin Resource Sharing) middleware
+ * 
+ * Enables controlled access from web browsers running on different domains
+ * Essential for API consumption from frontend applications
+ */
+export const corsMiddleware = cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in whitelist
+    if (APP_CONFIG.WHITELIST_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Reject origin not in whitelist
+    const msg = `CORS policy violation: Origin ${origin} not allowed`;
+    return callback(new Error(msg), false);
+  },
+  
+  // Allowed HTTP methods
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  
+  // Allowed headers
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  
+  // Enable credentials (cookies, authorization headers)
+  credentials: true,
+  
+  // Cache preflight requests for 24 hours
+  maxAge: 86400
+});
+```
+
+### Step 12: Additional Middleware Components
+
+Create the remaining middleware files following the same comprehensive documentation pattern:
+
+- `src/middleware/compressionMiddleware.ts` - Response compression
+- `src/middleware/jsonMiddleware.ts` - JSON body parsing
+- `src/middleware/urlMiddleware.ts` - URL-encoded parsing
+- `src/middleware/cookieParserMiddleware.ts` - Cookie handling
+
+Create `src/middleware/index.ts` to export all middleware:
+
+```typescript
+export { helmetMiddleware } from './helmetMiddleware';
+export { rateLimiterMiddleware } from './rateLimiterMiddleware';
+export { corsMiddleware } from './corsMiddleware';
+export { compressionMiddleware } from './compressionMiddleware';
+export { jsonMiddleware } from './jsonMiddleware';
+export { urlMiddleware } from './urlMiddleware';
+export { cookieParserMiddleware } from './cookieParserMiddleware';
+```
+
+### Step 13: Integrate Middleware Stack
+
+Update `src/server.ts`:
+
+```typescript
+import express from 'express';
+import { APP_CONFIG } from '@/config';
+import {
+  corsMiddleware,
+  jsonMiddleware,
+  urlMiddleware,
+  helmetMiddleware,
+  cookieParserMiddleware,
+  compressionMiddleware,
+  rateLimiterMiddleware
+} from '@/middleware';
+
+const app = express();
+
+// Middleware stack - order matters!
+app.use(corsMiddleware);           // CORS first for preflight
+app.use(jsonMiddleware);           // JSON body parsing
+app.use(urlMiddleware);            // URL-encoded parsing
+app.use(helmetMiddleware);         // Security headers
+app.use(cookieParserMiddleware);   // Cookie parsing
+app.use(compressionMiddleware);    // Response compression
+app.use(rateLimiterMiddleware);    // Rate limiting last
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Blog API Server Running',
+    timestamp: new Date().toISOString(),
+    environment: APP_CONFIG.NODE_ENV,
+    middleware: 'Production stack loaded'
+  });
+});
+
+app.listen(APP_CONFIG.PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${APP_CONFIG.PORT}`);
+  console.log(`🛡️  Security middleware active`);
+  console.log(`⚡ Performance middleware active`);
+});
+```
+
+**Middleware Order Rationale**:
+1. **CORS first** - Handle preflight requests early
+2. **Body parsing** - Enable request data access
+3. **Security headers** - Protect responses
+4. **Cookie parsing** - Enable session handling
+5. **Compression** - Optimize response size
+6. **Rate limiting last** - Apply after all processing
+
+## Phase 4: Testing and Validation
+
+### Step 14: Create API Test Collection
+
+Create `Blog API.postman_collection.json`:
+
+```json
+{
+  "info": {
+    "name": "Blog API",
+    "description": "Test collection for Blog API endpoints"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/",
+          "host": ["{{BASE_URL}}"]
+        }
+      }
+    }
+  ]
+}
+```
+
+### Step 15: Development Workflow
+
+```bash
+# Start development server
+npm run dev
+
+# Test the API
+curl http://localhost:3000
+
+# Check security headers
+curl -I http://localhost:3000
+
+# Test rate limiting (make 101+ requests quickly)
+for i in {1..105}; do curl http://localhost:3000; done
+```
+
+---
+
+## 🔧 Next Development Phases
+
+### Phase 4: Database Integration (Upcoming)
+
+**Planned Architecture**:
+```
+src/
+├── models/          # Data models and schemas
+├── services/        # Business logic layer  
+├── controllers/     # Request/response handling
+├── routes/          # API endpoint definitions
+└── utils/           # Helper functions
+```
+
+**Database Options Under Consideration**:
+- **MongoDB** with Mongoose - Document-based, flexible schema
+- **PostgreSQL** with Prisma - Relational, strong consistency
+- **SQLite** - Lightweight, file-based for development
+
+### Phase 5: API Implementation
+
+**Planned Endpoints**:
+```
+GET    /api/posts      # List all posts
+GET    /api/posts/:id  # Get specific post  
+POST   /api/posts      # Create new post
+PUT    /api/posts/:id  # Update entire post
+PATCH  /api/posts/:id  # Partial update
+DELETE /api/posts/:id  # Delete post
+```
+
+### Phase 6: Quality & Testing
+
+**Testing Strategy**:
+- Unit tests for middleware and utilities
+- Integration tests for API endpoints
+- Load testing for performance validation
+- Security testing for vulnerability assessment
+
+---
+
+## 🚀 Running the Application
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn package manager
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd blog-api
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Start development server
+npm run dev
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | 3000 | Server port |
+| `NODE_ENV` | development | Environment mode |
+| `WHITELIST_ORIGINS` | localhost:3000 | CORS allowed origins |
+| `RATE_LIMIT_MAX` | 100 | Max requests per minute |
+
+---
+
+## 🔒 Security Features
+
+### Implemented Security Measures
+
+1. **Helmet.js Security Headers**
+   - Content Security Policy (CSP)
+   - X-Frame-Options (Clickjacking protection)
+   - X-Content-Type-Options (MIME sniffing protection)
+   - X-XSS-Protection
+   - Strict-Transport-Security (HSTS)
+
+2. **Rate Limiting**
+   - 100 requests per minute by default
+   - Configurable limits per environment
+   - Informative error responses
+
+3. **CORS Protection**
+   - Whitelist-based origin validation
+   - Controlled method and header access
+   - Credential support with proper validation
+
+4. **Request Processing**
+   - JSON payload size limits
+   - URL-encoded parameter limits
+   - Cookie parsing with security options
+
+### Security Headers Example
+
+When you make a request to the API, you'll receive headers like:
+
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 99
+X-RateLimit-Reset: 1640995200
+```
+
+---
+
+## 📈 Performance Features
+
+### Response Optimization
+- **Gzip/Deflate Compression** - Reduces response size by 60-80%
+- **Conditional Compression** - Smart compression based on content type
+- **Threshold-based** - Only compress responses above 1KB
+
+### Rate Limiting Details
+- **Window**: 60-second sliding window
+- **Limit**: Configurable (default 100 requests)
+- **Headers**: Client receives limit info in response headers
+- **Memory Store**: In-memory storage (suitable for single-instance)
+
+### Example Rate Limit Headers
+
+```
+X-RateLimit-Limit: 100          # Maximum requests allowed
+X-RateLimit-Remaining: 85        # Requests remaining in window
+X-RateLimit-Reset: 1640995260    # Unix timestamp when limit resets
+```
+
+---
+
+## 🧪 Development & Testing
+
+### Development Commands
+
+```bash
+npm run dev        # Start development server with hot reload
+npm run build      # Compile TypeScript to JavaScript
+npm run start      # Start production server
+npm run format     # Format code with Prettier
+```
+
+### Testing the Middleware Stack
+
+1. **Security Headers Test**:
+```bash
+curl -I http://localhost:3000
+```
+
+2. **CORS Test**:
+```bash
+curl -H "Origin: http://unauthorized-domain.com" http://localhost:3000
+```
+
+3. **Rate Limiting Test**:
+```bash
+# Make multiple requests quickly
+for i in {1..105}; do curl http://localhost:3000; done
+```
+
+4. **Compression Test**:
+```bash
+curl -H "Accept-Encoding: gzip" http://localhost:3000 -v
+```
+
+---
+
+## 📚 Learning Resources
+
+### Key Concepts Demonstrated
+
+1. **TypeScript Configuration** - Strict mode, path mapping, build targets
+2. **Express.js Middleware** - Order-dependent processing pipeline
+3. **Security Best Practices** - Defense-in-depth approach
+4. **Performance Optimization** - Compression and rate limiting
+5. **Environment Configuration** - Flexible, environment-based settings
+6. **Development Workflow** - Hot reloading and type safety
+
+### Recommended Reading
+
+- [Express.js Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
+- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Node.js Performance Best Practices](https://nodejs.org/en/docs/guides/simple-profiling/)
+
+---
+
+## 🤝 Contributing
+
+This project follows a documented development approach with comprehensive decision tracking. See the memory-bank documentation for context on architectural decisions and development patterns.
+
+### Development Workflow
+
+1. Read memory-bank documentation to understand current context
+2. Update relevant memory-bank files with changes
+3. Implement features following established patterns
+4. Update documentation and examples
+5. Test middleware integration and security features
+
+---
+
+## 📄 License
+
+This project is licensed under the ISC License - see the LICENSE file for details.
+
+---
+
+## 🔗 Additional Resources
+
+- **Memory Bank Documentation**: Complete project context and decisions
+- **API Testing Collection**: Postman collection for endpoint testing
+- **TypeScript Configuration**: Strict mode setup with path mapping
+- **Security Analysis**: Comprehensive middleware security review
+- **Performance Benchmarks**: Response optimization measurements
+
+---
+
+*Built with ❤️ using Node.js, TypeScript, and Express.js*
