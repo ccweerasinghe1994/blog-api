@@ -9,6 +9,7 @@
 
 ### Development Tools
 - **Code Formatting**: Prettier (^3.5.3)
+- **Code Quality**: .prettierignore for selective formatting
 - **Package Manager**: npm
 
 ### Project Configuration
@@ -29,6 +30,7 @@ blog-api/
 ├── dist/           # Compiled output
 ├── src/            # Source code (to be created)
 ├── memory-bank/    # Documentation
+├── .prettierignore # Prettier exclusion rules
 ├── package.json    # Project configuration
 └── readme.md       # Project documentation
 ```
@@ -61,6 +63,12 @@ blog-api/
 
 ### Code Quality
 - **Formatting**: Prettier for consistent code style
+- **Exclusions**: .prettierignore configured for:
+  - Dependencies (node_modules/, package-lock.json)
+  - Build outputs (dist/, build/, *.tgz)
+  - Environment files (.env, .env.local, .env.production)
+  - IDE files (.vscode/, .idea/, etc.)
+  - Logs and temporary files
 - **Commands**: 
   - `npx prettier --write .` (format)
   - `npx prettier --check .` (check)
