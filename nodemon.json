@@ -1,5 +1,5 @@
 {
-    "watch":["src", "config"],
-    "ext": "ts",
+    "watch":["src", "config",".env"],
+    "ext": "ts,env",
     "exec":"ts-node -r tsconfig-paths/register src/server.ts"
 }

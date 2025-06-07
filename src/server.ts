@@ -1,12 +1,22 @@
 /**
  * Node modules
  */
+
 import express from 'express';
 
 /**
  * Local modules
  */
-import config from '@/config';
+import { APP_CONFIG } from '@/config';
+import {
+  compressionMiddleware,
+  cookieParserMiddleware,
+  corsMiddleware,
+  helmetMiddleware,
+  jsonMiddleware,
+  rateLimiterMiddleware,
+  urlMiddleware,
+} from '@/middleware';
 
 /**
  * Express server setup
@@ -19,6 +29,13 @@ import config from '@/config';
  * on a specific port.
  */
 const app = express();
+app.use(corsMiddleware);
+app.use(jsonMiddleware);
+app.use(urlMiddleware);
+app.use(helmetMiddleware);
+app.use(cookieParserMiddleware);
+app.use(compressionMiddleware);
+app.use(rateLimiterMiddleware);
 
 const requestHandler: express.RequestHandler = (req, res, next) => {
   console.log(`${req.method} ${req.url}`);
@@ -27,6 +44,6 @@ const requestHandler: express.RequestHandler = (req, res, next) => {
 
 app.get('/', requestHandler);
 
-app.listen(config.PORT, () => {
-  console.log(`Server is running on http://localhost:${config.PORT}`);
+app.listen(APP_CONFIG.PORT, () => {
+  console.log(`Server is running on http://localhost:${APP_CONFIG.PORT}`);
 });

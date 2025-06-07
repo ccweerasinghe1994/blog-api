@@ -41,11 +41,20 @@ blog-api/
 ├── src/                     # TypeScript source code
 │   ├── config/              # Environment configuration
 │   │   └── index.ts         # Configuration module with dotenv
+│   ├── middleware/          # Cross-cutting concerns (✅ Complete)
+│   │   ├── compressionMiddleware.ts    # Response compression
+│   │   ├── cookieParserMiddleware.ts   # Cookie parsing
+│   │   ├── corsMiddleware.ts           # Cross-origin requests
+│   │   ├── helmetMiddleware.ts         # Security headers
+│   │   ├── jsonMiddleware.ts           # JSON body parsing
+│   │   ├── rateLimiterMiddleware.ts    # Rate limiting
+│   │   ├── urlMiddleware.ts            # URL encoding
+│   │   └── index.ts                    # Middleware exports
 │   └── server.ts            # Main Express application entry point
 ├── memory-bank/             # Documentation
 ├── .env                     # Environment variables (PORT=3000)
 ├── .prettierignore          # Prettier exclusion rules
-├── package.json             # Project configuration with Express deps
+├── package.json             # Project configuration with middleware deps
 ├── tsconfig.json            # TypeScript configuration with path mapping
 ├── nodemon.json             # Development server configuration
 ├── Blog API.postman_collection.json  # API testing collection
@@ -58,17 +67,25 @@ blog-api/
 - No database configured yet
 - No testing framework set up  
 - No production build scripts defined in package.json
-- No input validation middleware
-- No error handling middleware implemented
+- No additional input validation middleware beyond parsing
+- No centralized error handling middleware implemented
 - No API route structure beyond root endpoint
 
-### Dependencies
+### Production Dependencies
 - **Production**: 
   - express (^5.1.0) - Web framework
   - dotenv (^16.5.0) - Environment variable management
+  - compression (^1.8.0) - Response compression middleware
+  - cookie-parser (^1.4.7) - Cookie parsing middleware
+  - cors (^2.8.5) - Cross-origin resource sharing middleware
+  - express-rate-limit (^7.5.0) - Rate limiting middleware
+  - helmet (^8.1.0) - Security headers middleware
 - **Development**: 
   - @types/express (^5.0.3) - TypeScript definitions for Express
   - @types/node (^22.15.30) - TypeScript definitions for Node.js
+  - @types/compression (^1.7.5) - TypeScript definitions for compression
+  - @types/cookie-parser (^1.4.7) - TypeScript definitions for cookie-parser
+  - @types/cors (^2.8.17) - TypeScript definitions for CORS
   - nodemon (^3.1.10) - Development server with hot reloading
   - prettier (^3.5.3) - Code formatting
   - ts-node (^10.9.2) - TypeScript execution for development
@@ -109,11 +126,12 @@ blog-api/
   - `npx prettier --check .` (check)
 
 ### Development Server
-- **Hot Reloading**: Nodemon watches src/ and config/ directories
+- **Hot Reloading**: Nodemon watches src/ and config/ directories, plus .env files
 - **TypeScript Execution**: ts-node with tsconfig-paths for path mapping
 - **Development Command**: `npm run dev` starts nodemon
-- **Environment**: Loads .env file with PORT=3000
+- **Environment**: Loads .env file with PORT=3000, NODE_ENV, RATE_LIMIT_MAX
 - **Path Mapping**: @/* resolves to src/* for clean imports
+- **Enhanced Monitoring**: .env file changes trigger automatic restart
 
 ### Testing
 - **Current**: No test framework configured
