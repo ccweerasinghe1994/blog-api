@@ -37,7 +37,9 @@
 ### File Structure
 ```
 blog-api/
-├── dist/                    # Compiled TypeScript output
+├── .vscode/                 # VS Code workspace configuration
+│   └── launch.json          # Debug configuration for compiled output
+├── dist/                    # Compiled TypeScript output (git ignored)
 ├── src/                     # TypeScript source code
 │   ├── config/              # Environment configuration
 │   │   └── index.ts         # Configuration module with dotenv
@@ -50,9 +52,13 @@ blog-api/
 │   │   ├── rateLimiterMiddleware.ts    # Rate limiting
 │   │   ├── urlMiddleware.ts            # URL encoding
 │   │   └── index.ts                    # Middleware exports
+│   ├── routes/              # API routing structure (✅ Started)
+│   │   └── v1/              # API version 1
+│   │       └── index.ts     # V1 router with health endpoint
 │   └── server.ts            # Main Express application entry point
 ├── memory-bank/             # Documentation
-├── .env                     # Environment variables (PORT=3000)
+├── .env                     # Environment variables (PORT=3000, etc.)
+├── .gitignore               # Git exclusions (node_modules, .env*, dist)
 ├── .prettierignore          # Prettier exclusion rules
 ├── package.json             # Project configuration with middleware deps
 ├── tsconfig.json            # TypeScript configuration with path mapping

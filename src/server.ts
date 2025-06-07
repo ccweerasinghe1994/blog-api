@@ -17,6 +17,7 @@ import {
   rateLimiterMiddleware,
   urlMiddleware,
 } from '@/middleware';
+import { v1Router } from './routes/v1';
 
 /**
  * Express server setup
@@ -37,13 +38,27 @@ app.use(cookieParserMiddleware);
 app.use(compressionMiddleware);
 app.use(rateLimiterMiddleware);
 
-const requestHandler: express.RequestHandler = (req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  res.send('Hello World!');
+try {
+  app.use('/api/v1', v1Router);
+
+  app.listen(APP_CONFIG.PORT, () => {
+    console.log(`Server is running on http://localhost:${APP_CONFIG.PORT}`);
+  });
+} catch (error) {
+  console.error('Error starting the server:', error);
+  process.exit(1); // Exit the process with a failure code
+}
+
+const shutdown = async () => {
+  try {
+    console.log('Shutting down server gracefully...');
+    // Perform any necessary cleanup here, such as closing database connections
+    // or stopping background tasks.
+    process.exit(0); // Exit the process with a success code
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+  }
 };
 
-app.get('/', requestHandler);
-
-app.listen(APP_CONFIG.PORT, () => {
-  console.log(`Server is running on http://localhost:${APP_CONFIG.PORT}`);
-});
+process.on('SIGINT', shutdown); // Handle Ctrl+C
+process.on('SIGTERM', shutdown); // Handle termination signal

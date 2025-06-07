@@ -22,8 +22,11 @@ src/
 │   ├── rateLimiterMiddleware.ts     # Rate limiting
 │   ├── urlMiddleware.ts             # URL encoding
 │   └── index.ts                     # Middleware exports
+├── routes/         # API routing structure (✅ Started)
+│   └── v1/         # API version 1
+│       └── index.ts # V1 router with health check
 ├── server.ts       # Express application entry point (✅ Implemented)
-└── [planned]       # Future: routes/, controllers/, services/, models/
+└── [planned]       # Future: controllers/, services/, models/
 ```
 
 ### Target Structure (Planned)
@@ -43,26 +46,41 @@ src/
 
 ### API Design Patterns
 - **REST Principles**: Resource-based URLs, HTTP verbs
-- **Endpoint Structure**: `/api/posts` for blog posts
-- **Response Format**: Consistent JSON structure
+- **API Versioning**: `/api/v1/posts` structure for backward compatibility
+- **Endpoint Structure**: Versioned endpoints with clear resource paths
+- **Response Format**: Consistent JSON structure with metadata
 - **Error Handling**: Standard HTTP status codes
+- **Health Checks**: API status endpoint for monitoring
 
 ### Code Organization Patterns
-- **Separation of Concerns**: Clear layer boundaries
+- **Separation of Concerns**: Clear layer boundaries (routes, middleware, config)
 - **Single Responsibility**: Each module has one purpose
-- **Dependency Injection**: Services injected into controllers
+- **Modular Routing**: Express Router for organized endpoint management
+- **Graceful Shutdown**: Signal handling for production environments
 - **Configuration**: Environment-based configuration
 
 ## Key Technical Decisions
 
 ### API Structure
 ```
-GET    /api/posts      # List all posts
-GET    /api/posts/:id  # Get specific post
-POST   /api/posts      # Create new post
-PUT    /api/posts/:id  # Update entire post
-PATCH  /api/posts/:id  # Partial update
-DELETE /api/posts/:id  # Delete post
+GET    /api/v1/            # API health check and version info
+GET    /api/v1/posts       # List all posts (planned)
+GET    /api/v1/posts/:id   # Get specific post (planned)
+POST   /api/v1/posts       # Create new post (planned)
+PUT    /api/v1/posts/:id   # Update entire post (planned)
+PATCH  /api/v1/posts/:id   # Partial update (planned)
+DELETE /api/v1/posts/:id   # Delete post (planned)
+```
+
+### Current API Response Structure
+```json
+{
+  "message": "Api v1 is running",
+  "version": "1.0.0", 
+  "timestamp": "2025-06-07T...",
+  "status": "ok",
+  "docs": "https://github.com/ccweerasinghe1994/blog-api"
+}
 ```
 
 ### Data Flow Pattern
