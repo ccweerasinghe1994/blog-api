@@ -3,16 +3,19 @@
 ## Architecture Overview
 
 ### Current Architecture Pattern
-- **Pattern**: Express.js HTTP server with TypeScript
-- **Structure**: Single server file with modular configuration
+- **Pattern**: Express.js HTTP server with TypeScript and MongoDB
+- **Structure**: Single server file with modular configuration and database integration
 - **Communication**: HTTP JSON API (foundation established)
+- **Data Layer**: MongoDB with Mongoose ODM for data persistence
 - **Development**: Hot reloading with nodemon and ts-node
 
 ### Implemented Structure
 ```
 src/
 ├── config/         # Configuration management (✅ Implemented)
-│   └── index.ts    # Environment config with dotenv
+│   └── index.ts    # Environment config with dotenv and database URI
+├── lib/            # Shared libraries (✅ Started)
+│   └── mongoose.ts # Database connection management
 ├── middleware/     # Cross-cutting concerns (✅ Implemented)
 │   ├── compressionMiddleware.ts     # Response compression
 │   ├── cookieParserMiddleware.ts    # Cookie parsing
@@ -85,8 +88,32 @@ DELETE /api/v1/posts/:id   # Delete post (planned)
 
 ### Data Flow Pattern
 ```
-Request → Router → Controller → Service → Model → Database
-Response ← Controller ← Service ← Model ← Database
+Request → Router → Controller → Service → Model → MongoDB
+Response ← Controller ← Service ← Model ← MongoDB
+```
+
+### Database Architecture
+```
+Application Layer (Express.js)
+    ↓
+Data Access Layer (Mongoose ODM)
+    ↓  
+Database Layer (MongoDB)
+```
+
+### Connection Management Pattern
+```
+Server Startup:
+1. Load configuration
+2. Connect to database (await)
+3. Initialize middleware
+4. Start HTTP server
+
+Server Shutdown:
+1. Receive shutdown signal
+2. Stop accepting new requests
+3. Disconnect from database
+4. Exit process
 ```
 
 ### Error Handling Pattern
@@ -99,6 +126,21 @@ Response ← Controller ← Service ← Model ← Database
 
 ### Core Components
 1. **Server**: Express.js application setup (✅ Implemented)
+2. **Database**: MongoDB connection with Mongoose ODM (✅ Implemented)
+3. **Configuration**: Environment-based config management (✅ Implemented)
+4. **Middleware**: Security, parsing, and performance layers (✅ Implemented)
+5. **Routing**: API versioning and endpoint structure (✅ Started)
+6. **Models**: Data schemas and validation (🚧 Next Priority)
+7. **Controllers**: Request/response handling (🚧 Planned)
+8. **Services**: Business logic implementation (🚧 Planned)
+
+### Database Integration
+- **Connection**: Async connection management with proper error handling
+- **Configuration**: Environment-based MongoDB URI configuration
+- **Lifecycle**: Database connection tied to server startup/shutdown
+- **Options**: Production-ready client options with Server API v1
+- **Monitoring**: Application name and database name for MongoDB Atlas/monitoring
+- **Error Handling**: Comprehensive connection error management and logging
 2. **Configuration**: Environment management with dotenv (✅ Implemented)  
 3. **Development**: Hot reloading with nodemon (✅ Implemented)
 4. **Middleware Stack**: Production-ready cross-cutting concerns (✅ Implemented)

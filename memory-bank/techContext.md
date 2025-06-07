@@ -6,6 +6,7 @@
 - **Runtime**: Node.js
 - **Language**: TypeScript (^5.8.3)
 - **Framework**: Express.js (^5.1.0) for HTTP server
+- **Database**: MongoDB with Mongoose ODM (^8.15.1)
 - **Module System**: CommonJS (`"type": "commonjs"`)
 - **Entry Point**: dist/server.js (compiled from TypeScript)
 - **Build Target**: ES2016 for modern Node.js compatibility
@@ -43,6 +44,8 @@ blog-api/
 ├── src/                     # TypeScript source code
 │   ├── config/              # Environment configuration
 │   │   └── index.ts         # Configuration module with dotenv
+│   ├── lib/                 # Shared libraries and utilities
+│   │   └── mongoose.ts      # Database connection management
 │   ├── middleware/          # Cross-cutting concerns (✅ Complete)
 │   │   ├── compressionMiddleware.ts    # Response compression
 │   │   ├── cookieParserMiddleware.ts   # Cookie parsing
@@ -70,17 +73,18 @@ blog-api/
 ## Technical Constraints
 
 ### Current Limitations
-- No database configured yet
+- No data models/schemas defined yet
 - No testing framework set up  
 - No production build scripts defined in package.json
 - No additional input validation middleware beyond parsing
 - No centralized error handling middleware implemented
-- No API route structure beyond root endpoint
+- No CRUD API endpoints beyond health check
 
 ### Production Dependencies
 - **Production**: 
   - express (^5.1.0) - Web framework
   - dotenv (^16.5.0) - Environment variable management
+  - mongoose (^8.15.1) - MongoDB ODM for database operations
   - compression (^1.8.0) - Response compression middleware
   - cookie-parser (^1.4.7) - Cookie parsing middleware
   - cors (^2.8.5) - Cross-origin resource sharing middleware

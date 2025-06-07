@@ -17,6 +17,7 @@ import {
   rateLimiterMiddleware,
   urlMiddleware,
 } from '@/middleware';
+import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
 import { v1Router } from './routes/v1';
 
 /**
@@ -38,19 +39,22 @@ app.use(cookieParserMiddleware);
 app.use(compressionMiddleware);
 app.use(rateLimiterMiddleware);
 
-try {
-  app.use('/api/v1', v1Router);
+(async () => {
+  try {
+    await connectToDatabase();
+    app.use('/api/v1', v1Router);
 
-  app.listen(APP_CONFIG.PORT, () => {
-    console.log(`Server is running on http://localhost:${APP_CONFIG.PORT}`);
-  });
-} catch (error) {
-  console.error('Error starting the server:', error);
-  process.exit(1); // Exit the process with a failure code
-}
-
+    app.listen(APP_CONFIG.PORT, () => {
+      console.log(`Server is running on http://localhost:${APP_CONFIG.PORT}`);
+    });
+  } catch (error) {
+    console.error('Error starting the server:', error);
+    process.exit(1); // Exit the process with a failure code
+  }
+})();
 const shutdown = async () => {
   try {
+    await disconnectFromDatabase();
     console.log('Shutting down server gracefully...');
     // Perform any necessary cleanup here, such as closing database connections
     // or stopping background tasks.
