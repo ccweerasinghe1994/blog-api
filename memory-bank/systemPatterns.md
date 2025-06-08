@@ -3,11 +3,12 @@
 ## Architecture Overview
 
 ### Current Architecture Pattern
-- **Pattern**: Express.js HTTP server with TypeScript, MongoDB, and JWT Authentication
-- **Structure**: Modular architecture with authentication system, professional logging, and secure user management
-- **Communication**: HTTP JSON API with JWT-based authentication
+- **Pattern**: Express.js HTTP server with TypeScript, MongoDB, complete JWT Authentication, and professional validation
+- **Structure**: Modular architecture with complete authentication system, professional logging, express-validator middleware, and secure user management
+- **Communication**: HTTP JSON API with complete JWT-based authentication flow (register, login, refresh)
 - **Data Layer**: MongoDB with Mongoose ODM for data persistence and user/token management
-- **Security**: bcrypt password hashing, JWT tokens, role-based access control
+- **Security**: bcrypt password hashing, JWT tokens, role-based access control with admin whitelist
+- **Validation**: Express-validator with comprehensive request validation and custom validators
 - **Logging**: Winston professional logging system replacing console.log
 - **Development**: Hot reloading with nodemon and ts-node
 
@@ -16,10 +17,12 @@
 src/
 ├── config/         # Configuration management (✅ Enhanced)
 │   └── index.ts    # Environment config with JWT, admin whitelist, logging
-├── controllers/    # Request/response handling (✅ Started)
+├── controllers/    # Request/response handling (✅ Complete Auth System)
 │   └── v1/
 │       └── auth/
-│           └── auth.controller.ts  # User registration controller
+│           ├── auth.controller.ts    # User registration controller
+│           ├── login.controller.ts   # User login controller
+│           └── token.controller.ts   # Token refresh controller
 ├── lib/            # Shared libraries (✅ Expanded)
 │   ├── jwt.ts      # JWT token generation and validation
 │   ├── mongoose.ts # Database connection management
@@ -28,6 +31,7 @@ src/
 │   ├── compressionMiddleware.ts     # Response compression
 │   ├── cookieParserMiddleware.ts    # Cookie parsing
 │   ├── corsMiddleware.ts            # Cross-origin requests
+│   ├── expressValidationMiddleware.ts # Express-validator error handling
 │   ├── helmetMiddleware.ts          # Security headers
 │   ├── jsonMiddleware.ts            # JSON body parsing
 │   ├── rateLimiterMiddleware.ts     # Rate limiting
@@ -40,8 +44,13 @@ src/
 │   └── v1/         # API version 1
 │       ├── index.ts # V1 router with health check
 │       └── auth.ts  # Authentication routes
+├── types/          # TypeScript definitions (✅ Complete)
+│   └── index.ts    # Auth response types, user types, error types
 ├── utils/          # Utility functions (✅ Added)
 │   └── index.ts    # Username generation and helpers
+├── validation/     # Request validation (✅ Complete)
+│   ├── common.ts   # Email, password, role validators
+│   └── index.ts    # Validation exports
 ├── server.ts       # Express application entry point (✅ Enhanced)
 └── [planned]       # Future: blog models, services, additional controllers
 ```
@@ -89,9 +98,8 @@ src/
 ```
 GET    /api/v1/            # API health check and version info
 POST   /api/v1/auth/register # User registration with role validation
-POST   /api/v1/auth/login    # User authentication (planned)
-POST   /api/v1/auth/refresh  # Token refresh (planned)
-POST   /api/v1/auth/logout   # User logout (planned)
+POST   /api/v1/auth/login    # User authentication
+POST   /api/v1/auth/refresh-token  # Token refresh
 GET    /api/v1/posts         # List all posts (planned, with auth)
 GET    /api/v1/posts/:id     # Get specific post (planned)
 POST   /api/v1/posts         # Create new post (planned, requires auth)

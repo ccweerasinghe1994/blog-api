@@ -77,7 +77,7 @@ const registerUser: RequestHandler = async (req, res) => {
     res.status(500).json({
       status: 'ServerError',
       message: 'Internal server error',
-      error: error,
+      error: errorMessage,
     });
     Logger.error('Error in register handler:', {
       error,

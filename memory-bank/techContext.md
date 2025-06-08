@@ -8,8 +8,10 @@
 - **Framework**: Express.js (^5.1.0) for HTTP server
 - **Database**: MongoDB with Mongoose ODM (^8.15.1)
 - **Authentication**: JWT tokens with jsonwebtoken (^9.0.2)
-- **Password Security**: bcrypt (^3.0.8) for password hashing
-- **Logging**: Winston (^3.18.0) for professional logging
+- **Password Security**: bcrypt (^6.0.0) for password hashing
+- **Validation**: express-validator (^7.2.1) for request validation
+- **Logging**: Winston (^3.17.0) for professional logging
+- **Utility**: ms (^2.1.3) for time parsing
 - **Module System**: CommonJS (`"type": "commonjs"`)
 - **Entry Point**: dist/server.js (compiled from TypeScript)
 - **Build Target**: ES2016 for modern Node.js compatibility
@@ -23,7 +25,7 @@
 - **Development Server**: Nodemon (^3.1.10) for hot reloading
 - **TypeScript Runtime**: ts-node (^10.9.2) for development
 - **Path Resolution**: tsconfig-paths (^4.2.0) for import mapping
-- **Type Definitions**: @types/express, @types/node for TypeScript support
+- **Type Definitions**: @types/express, @types/node, @types/bcrypt, @types/jsonwebtoken for TypeScript support
 
 ### Project Configuration
 - **Package.json**: Standard Node.js project structure

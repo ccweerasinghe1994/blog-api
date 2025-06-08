@@ -16,4 +16,17 @@ const generateRefreshToken = (userId: Types.ObjectId) => {
   });
 };
 
-export { generateAccessToken, generateRefreshToken };
+const verifyAccessToken = (token: string) => {
+  return jwt.verify(token, APP_CONFIG.JWT_ACCESS_SECRET);
+};
+
+const verifyRefreshToken = (token: string) => {
+  return jwt.verify(token, APP_CONFIG.JWT_REFRESH_SECRET);
+};
+
+export {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+};
