@@ -7,6 +7,9 @@
 - **Language**: TypeScript (^5.8.3)
 - **Framework**: Express.js (^5.1.0) for HTTP server
 - **Database**: MongoDB with Mongoose ODM (^8.15.1)
+- **Authentication**: JWT tokens with jsonwebtoken (^9.0.2)
+- **Password Security**: bcrypt (^3.0.8) for password hashing
+- **Logging**: Winston (^3.18.0) for professional logging
 - **Module System**: CommonJS (`"type": "commonjs"`)
 - **Entry Point**: dist/server.js (compiled from TypeScript)
 - **Build Target**: ES2016 for modern Node.js compatibility
@@ -43,9 +46,15 @@ blog-api/
 ├── dist/                    # Compiled TypeScript output (git ignored)
 ├── src/                     # TypeScript source code
 │   ├── config/              # Environment configuration
-│   │   └── index.ts         # Configuration module with dotenv
-│   ├── lib/                 # Shared libraries and utilities
-│   │   └── mongoose.ts      # Database connection management
+│   │   └── index.ts         # Configuration module with JWT, auth, logging
+│   ├── controllers/         # Request/response handling (✅ Auth started)
+│   │   └── v1/
+│   │       └── auth/
+│   │           └── auth.controller.ts  # User registration controller
+│   ├── lib/                 # Shared libraries and utilities (✅ Enhanced)
+│   │   ├── jwt.ts           # JWT token generation and validation
+│   │   ├── mongoose.ts      # Database connection management
+│   │   └── winston.ts       # Professional logging configuration
 │   ├── middleware/          # Cross-cutting concerns (✅ Complete)
 │   │   ├── compressionMiddleware.ts    # Response compression
 │   │   ├── cookieParserMiddleware.ts   # Cookie parsing
@@ -55,15 +64,21 @@ blog-api/
 │   │   ├── rateLimiterMiddleware.ts    # Rate limiting
 │   │   ├── urlMiddleware.ts            # URL encoding
 │   │   └── index.ts                    # Middleware exports
-│   ├── routes/              # API routing structure (✅ Started)
+│   ├── models/              # Data models (✅ User/Token implemented)
+│   │   ├── user.model.ts    # User schema with validation and auth
+│   │   └── token.model.ts   # Refresh token storage model
+│   ├── routes/              # API routing structure (✅ Auth routes added)
 │   │   └── v1/              # API version 1
-│   │       └── index.ts     # V1 router with health endpoint
+│   │       ├── index.ts     # V1 router with health endpoint
+│   │       └── auth.ts      # Authentication routes
+│   ├── utils/               # Utility functions (✅ Added)
+│   │   └── index.ts         # Username generation and helpers
 │   └── server.ts            # Main Express application entry point
 ├── memory-bank/             # Documentation
-├── .env                     # Environment variables (PORT=3000, etc.)
+├── .env                     # Environment variables (PORT, JWT secrets, etc.)
 ├── .gitignore               # Git exclusions (node_modules, .env*, dist)
 ├── .prettierignore          # Prettier exclusion rules
-├── package.json             # Project configuration with middleware deps
+├── package.json             # Project configuration with auth dependencies
 ├── tsconfig.json            # TypeScript configuration with path mapping
 ├── nodemon.json             # Development server configuration
 ├── Blog API.postman_collection.json  # API testing collection
@@ -73,18 +88,26 @@ blog-api/
 ## Technical Constraints
 
 ### Current Limitations
-- No data models/schemas defined yet
+- No complete authentication flow (login, logout, refresh endpoints pending)
+- No blog post data models/schemas defined yet
 - No testing framework set up  
 - No production build scripts defined in package.json
 - No additional input validation middleware beyond parsing
 - No centralized error handling middleware implemented
-- No CRUD API endpoints beyond health check
+- No blog post CRUD API endpoints
 
 ### Production Dependencies
-- **Production**: 
+- **Core Production**: 
   - express (^5.1.0) - Web framework
   - dotenv (^16.5.0) - Environment variable management
   - mongoose (^8.15.1) - MongoDB ODM for database operations
+- **Authentication**: 
+  - bcrypt (^3.0.8) - Password hashing
+  - jsonwebtoken (^9.0.2) - JWT token generation and validation
+- **Logging**: 
+  - winston (^3.18.0) - Professional logging system
+  - ms (^2.1.3) - Time string parsing for token expiry
+- **Middleware**: 
   - compression (^1.8.0) - Response compression middleware
   - cookie-parser (^1.4.7) - Cookie parsing middleware
   - cors (^2.8.5) - Cross-origin resource sharing middleware
@@ -93,6 +116,8 @@ blog-api/
 - **Development**: 
   - @types/express (^5.0.3) - TypeScript definitions for Express
   - @types/node (^22.15.30) - TypeScript definitions for Node.js
+  - @types/bcrypt (^5.0.2) - TypeScript definitions for bcrypt
+  - @types/jsonwebtoken (^9.0.7) - TypeScript definitions for jsonwebtoken
   - @types/compression (^1.7.5) - TypeScript definitions for compression
   - @types/cookie-parser (^1.4.7) - TypeScript definitions for cookie-parser
   - @types/cors (^2.8.17) - TypeScript definitions for CORS
@@ -150,20 +175,22 @@ blog-api/
 
 ## Technology Decisions To Make
 
-1. **Database**: Choose database system (MongoDB, PostgreSQL, etc.)
-2. **Validation**: Zod (TypeScript-first) vs Joi vs class-validator  
-3. **Testing**: Jest with TypeScript vs Mocha with ts-node
-4. **Additional Type Definitions**: @types packages for chosen libraries
-5. **Production Build**: Add npm scripts for TypeScript compilation and deployment
-6. **API Documentation**: OpenAPI/Swagger vs other documentation tools
+1. ✅ **Database**: MongoDB with Mongoose ODM selected and implemented
+2. ✅ **Authentication**: JWT with bcrypt password hashing implemented
+3. ✅ **Logging**: Winston professional logging system implemented
+4. [ ] **Validation**: Zod (TypeScript-first) vs Joi vs class-validator for blog posts
+5. [ ] **Testing**: Jest with TypeScript vs Mocha with ts-node
+6. [ ] **API Documentation**: OpenAPI/Swagger vs other documentation tools
+7. [ ] **Production Build**: Add npm scripts for TypeScript compilation and deployment
 
 ## Integration Points
 
-- **Database**: TBD - will need connection and ORM/ODM
-- **Environment**: Configuration managed by dotenv with .env file
-- **Logging**: Structured logging solution (planned)
-- **Error Handling**: Centralized error management (planned)
-- **API Testing**: Postman collection configured for endpoint testing
+- **Database**: MongoDB with Mongoose ODM - connection and user/token models implemented
+- **Authentication**: JWT-based authentication with bcrypt password hashing
+- **Environment**: Configuration managed by dotenv with .env file (JWT secrets, admin whitelist)
+- **Logging**: Winston structured logging solution implemented throughout codebase
+- **Error Handling**: Centralized error management planned for blog endpoints
+- **API Testing**: Postman collection configured for endpoint testing (needs auth update)
 
 ## TypeScript Configuration
 

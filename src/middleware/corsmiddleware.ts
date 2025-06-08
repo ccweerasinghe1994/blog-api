@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@/config';
+import { Logger } from '@/lib/winston';
 import cors, { CorsOptions } from 'cors';
 /**
  * CORS (Cross-Origin Resource Sharing) Configuration
@@ -54,7 +55,7 @@ const corsOptions: CorsOptions = {
 
     // Reject unauthorized origins with detailed error logging
     const errorMessage = `CORS error: ${origin} is not allowed by CORS policy`;
-    console.error(errorMessage);
+    Logger.error(errorMessage);
     callback(new Error(errorMessage), false);
   },
 };

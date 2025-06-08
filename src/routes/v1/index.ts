@@ -1,8 +1,10 @@
+import { Logger } from '@/lib/winston';
 import { RequestHandler, Router } from 'express';
+import { AuthRouter } from './auth';
 
 export const v1Router = Router();
 const requestHandler: RequestHandler = (req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  Logger.info(`${req.method} ${req.url}`);
   res.status(200).json({
     message: 'Api v1 is running',
     version: '1.0.0',
@@ -12,3 +14,5 @@ const requestHandler: RequestHandler = (req, res, next) => {
   });
 };
 v1Router.get('/', requestHandler);
+
+v1Router.use('/auth', AuthRouter);

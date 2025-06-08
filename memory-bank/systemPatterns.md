@@ -3,20 +3,28 @@
 ## Architecture Overview
 
 ### Current Architecture Pattern
-- **Pattern**: Express.js HTTP server with TypeScript and MongoDB
-- **Structure**: Single server file with modular configuration and database integration
-- **Communication**: HTTP JSON API (foundation established)
-- **Data Layer**: MongoDB with Mongoose ODM for data persistence
+- **Pattern**: Express.js HTTP server with TypeScript, MongoDB, and JWT Authentication
+- **Structure**: Modular architecture with authentication system, professional logging, and secure user management
+- **Communication**: HTTP JSON API with JWT-based authentication
+- **Data Layer**: MongoDB with Mongoose ODM for data persistence and user/token management
+- **Security**: bcrypt password hashing, JWT tokens, role-based access control
+- **Logging**: Winston professional logging system replacing console.log
 - **Development**: Hot reloading with nodemon and ts-node
 
 ### Implemented Structure
 ```
 src/
-├── config/         # Configuration management (✅ Implemented)
-│   └── index.ts    # Environment config with dotenv and database URI
-├── lib/            # Shared libraries (✅ Started)
-│   └── mongoose.ts # Database connection management
-├── middleware/     # Cross-cutting concerns (✅ Implemented)
+├── config/         # Configuration management (✅ Enhanced)
+│   └── index.ts    # Environment config with JWT, admin whitelist, logging
+├── controllers/    # Request/response handling (✅ Started)
+│   └── v1/
+│       └── auth/
+│           └── auth.controller.ts  # User registration controller
+├── lib/            # Shared libraries (✅ Expanded)
+│   ├── jwt.ts      # JWT token generation and validation
+│   ├── mongoose.ts # Database connection management
+│   └── winston.ts  # Professional logging configuration
+├── middleware/     # Cross-cutting concerns (✅ Complete)
 │   ├── compressionMiddleware.ts     # Response compression
 │   ├── cookieParserMiddleware.ts    # Cookie parsing
 │   ├── corsMiddleware.ts            # Cross-origin requests
@@ -25,23 +33,30 @@ src/
 │   ├── rateLimiterMiddleware.ts     # Rate limiting
 │   ├── urlMiddleware.ts             # URL encoding
 │   └── index.ts                     # Middleware exports
-├── routes/         # API routing structure (✅ Started)
+├── models/         # Data models (✅ Implemented)
+│   ├── user.model.ts               # User schema with validation
+│   └── token.model.ts              # Refresh token storage
+├── routes/         # API routing structure (✅ Enhanced)
 │   └── v1/         # API version 1
-│       └── index.ts # V1 router with health check
-├── server.ts       # Express application entry point (✅ Implemented)
-└── [planned]       # Future: controllers/, services/, models/
+│       ├── index.ts # V1 router with health check
+│       └── auth.ts  # Authentication routes
+├── utils/          # Utility functions (✅ Added)
+│   └── index.ts    # Username generation and helpers
+├── server.ts       # Express application entry point (✅ Enhanced)
+└── [planned]       # Future: blog models, services, additional controllers
 ```
 
 ### Target Structure (Planned)
 ```
 src/
-├── routes/         # API endpoint definitions
-├── controllers/    # Request/response handling
-├── services/       # Business logic
-├── models/         # Data models/schemas
+├── routes/         # API endpoint definitions (✅ Auth routes done)
+├── controllers/    # Request/response handling (✅ Auth controller done)
+├── services/       # Business logic (✅ JWT services done)
+├── models/         # Data models/schemas (✅ User/Token models done)
 ├── middleware/     # Cross-cutting concerns (✅ Complete)
-├── utils/          # Utility functions
-├── config/         # Configuration (✅ Done)
+├── utils/          # Utility functions (✅ Username utils done)
+├── config/         # Configuration (✅ Enhanced with JWT/auth)
+├── lib/            # Shared libraries (✅ JWT, logging, DB)
 └── server.js       # Application entry point (✅ Done)
 ```
 
@@ -49,34 +64,45 @@ src/
 
 ### API Design Patterns
 - **REST Principles**: Resource-based URLs, HTTP verbs
-- **API Versioning**: `/api/v1/posts` structure for backward compatibility
+- **API Versioning**: `/api/v1/posts` and `/api/v1/auth` structure for backward compatibility
 - **Endpoint Structure**: Versioned endpoints with clear resource paths
+- **Authentication**: JWT-based authentication with access and refresh tokens
+- **Authorization**: Role-based access control with user/admin roles
 - **Response Format**: Consistent JSON structure with metadata
-- **Error Handling**: Standard HTTP status codes
+- **Error Handling**: Standard HTTP status codes with structured error responses
 - **Health Checks**: API status endpoint for monitoring
+- **Security**: Secure authentication endpoints with password hashing and token management
 
 ### Code Organization Patterns
-- **Separation of Concerns**: Clear layer boundaries (routes, middleware, config)
+- **Separation of Concerns**: Clear layer boundaries (routes, controllers, models, services)
 - **Single Responsibility**: Each module has one purpose
 - **Modular Routing**: Express Router for organized endpoint management
+- **MVC Pattern**: Model-View-Controller architecture for authentication system
+- **Service Layer**: Business logic separated into reusable services (JWT, logging)
+- **Utility Pattern**: Helper functions for common operations (username generation)
 - **Graceful Shutdown**: Signal handling for production environments
-- **Configuration**: Environment-based configuration
+- **Configuration**: Environment-based configuration with security settings
 
 ## Key Technical Decisions
 
 ### API Structure
 ```
 GET    /api/v1/            # API health check and version info
-GET    /api/v1/posts       # List all posts (planned)
-GET    /api/v1/posts/:id   # Get specific post (planned)
-POST   /api/v1/posts       # Create new post (planned)
-PUT    /api/v1/posts/:id   # Update entire post (planned)
-PATCH  /api/v1/posts/:id   # Partial update (planned)
-DELETE /api/v1/posts/:id   # Delete post (planned)
+POST   /api/v1/auth/register # User registration with role validation
+POST   /api/v1/auth/login    # User authentication (planned)
+POST   /api/v1/auth/refresh  # Token refresh (planned)
+POST   /api/v1/auth/logout   # User logout (planned)
+GET    /api/v1/posts         # List all posts (planned, with auth)
+GET    /api/v1/posts/:id     # Get specific post (planned)
+POST   /api/v1/posts         # Create new post (planned, requires auth)
+PUT    /api/v1/posts/:id     # Update entire post (planned, requires ownership)
+PATCH  /api/v1/posts/:id     # Partial update (planned, requires ownership)
+DELETE /api/v1/posts/:id     # Delete post (planned, requires ownership)
 ```
 
 ### Current API Response Structure
 ```json
+// Health check response
 {
   "message": "Api v1 is running",
   "version": "1.0.0", 
@@ -84,12 +110,58 @@ DELETE /api/v1/posts/:id   # Delete post (planned)
   "status": "ok",
   "docs": "https://github.com/ccweerasinghe1994/blog-api"
 }
+
+// User registration response
+{
+  "message": "User registered successfully",
+  "user": {
+    "_id": "...",
+    "firstName": "John",
+    "lastName": "Doe", 
+    "email": "john@example.com",
+    "username": "john_doe_12345",
+    "role": "user",
+    "createdAt": "2025-01-07T...",
+    "updatedAt": "2025-01-07T..."
+  },
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs..." // HTTP-only cookie
+}
+
+// Error response
+{
+  "message": "Validation failed",
+  "error": "Email is required",
+  "statusCode": 400
+}
 ```
 
 ### Data Flow Pattern
 ```
-Request → Router → Controller → Service → Model → MongoDB
+Authentication Flow:
+Request → Auth Router → Auth Controller → User Model → bcrypt → JWT Service → MongoDB
+Response ← Auth Controller ← JWT Tokens ← User Data ← MongoDB
+
+Blog Post Flow (Planned):
+Request → JWT Middleware → Blog Router → Blog Controller → Blog Service → Blog Model → MongoDB
 Response ← Controller ← Service ← Model ← MongoDB
+```
+
+### Authentication Architecture
+```
+User Registration/Login:
+1. Request validation
+2. Password hashing (bcrypt)
+3. User creation/verification
+4. JWT token generation (access + refresh)
+5. Refresh token storage (MongoDB)
+6. Response with tokens (HTTP-only cookies)
+
+Token Management:
+1. Access token validation (JWT middleware)
+2. Refresh token rotation
+3. Token blacklisting/cleanup
+4. Secure cookie handling
 ```
 
 ### Database Architecture
@@ -125,22 +197,34 @@ Server Shutdown:
 ## Component Relationships
 
 ### Core Components
-1. **Server**: Express.js application setup (✅ Implemented)
+1. **Server**: Express.js application setup (✅ Enhanced with auth integration)
 2. **Database**: MongoDB connection with Mongoose ODM (✅ Implemented)
-3. **Configuration**: Environment-based config management (✅ Implemented)
+3. **Configuration**: Environment-based config management (✅ Enhanced with JWT/auth)
 4. **Middleware**: Security, parsing, and performance layers (✅ Implemented)
-5. **Routing**: API versioning and endpoint structure (✅ Started)
-6. **Models**: Data schemas and validation (🚧 Next Priority)
-7. **Controllers**: Request/response handling (🚧 Planned)
-8. **Services**: Business logic implementation (🚧 Planned)
+5. **Routing**: API versioning and endpoint structure (✅ Auth routes added)
+6. **Authentication**: JWT-based user authentication system (✅ Implemented)
+7. **User Management**: User model with roles and validation (✅ Implemented)
+8. **Logging**: Professional Winston logging system (✅ Implemented)
+9. **Token Management**: JWT generation and refresh token storage (✅ Implemented)
+10. **Password Security**: bcrypt hashing with pre-save middleware (✅ Implemented)
+11. **Models**: User and token data schemas (✅ Implemented)
+12. **Controllers**: Authentication request/response handling (✅ Started)
+13. **Services**: JWT and utility services (✅ Implemented)
+14. **Blog Models**: Blog post data schemas (🚧 Next Priority)
+15. **Blog Controllers**: Blog CRUD request/response handling (🚧 Planned)
+16. **Blog Services**: Blog business logic implementation (🚧 Planned)
 
 ### Database Integration
 - **Connection**: Async connection management with proper error handling
 - **Configuration**: Environment-based MongoDB URI configuration
+- **Models**: User model with validation, password hashing, and social links
+- **Token Storage**: Refresh token model for JWT lifecycle management
 - **Lifecycle**: Database connection tied to server startup/shutdown
 - **Options**: Production-ready client options with Server API v1
 - **Monitoring**: Application name and database name for MongoDB Atlas/monitoring
 - **Error Handling**: Comprehensive connection error management and logging
+- **Schema Design**: Mongoose schemas with validation and middleware
+- **Relationships**: User-token relationships for authentication management
 2. **Configuration**: Environment management with dotenv (✅ Implemented)  
 3. **Development**: Hot reloading with nodemon (✅ Implemented)
 4. **Middleware Stack**: Production-ready cross-cutting concerns (✅ Implemented)
@@ -179,19 +263,26 @@ Server Shutdown:
 6. ✅ Comprehensive JSDoc documentation for all middleware
 7. ✅ Production dependencies integration
 
-### Phase 3: Core Features (🚧 NEXT PRIORITY)
-1. 🚧 API route structure planning
-2. ❌ Blog post model definition
-3. ❌ CRUD operations implementation
-4. ❌ Input validation middleware (building on existing parsing)
-5. ❌ Error handling middleware (complementing security)
-6. ❌ Response formatting
+### Phase 3: Authentication & Security Infrastructure (✅ COMPLETED)
+1. ✅ JWT implementation with access and refresh tokens
+2. ✅ User model with validation and password hashing
+3. ✅ Authentication controller and routes
+4. ✅ Role-based access control with admin whitelist
+5. ✅ Token storage and management system
+6. ✅ Professional logging system integration
+7. ✅ Security enhancements and configuration
 
-### Phase 4: Database Integration (❌ NOT STARTED)
-1. ❌ Database connection setup
-2. ❌ Model/schema definitions
-3. ❌ Migration system
-4. ❌ Data persistence layer
+### Phase 4: Blog Post Implementation (🚧 NEXT PRIORITY)
+1. 🚧 Blog post model with user associations
+2. ❌ Protected blog post CRUD endpoints
+3. ❌ Authentication middleware for protected routes
+4. ❌ Authorization logic for user ownership and admin access
+
+### Phase 5: Authentication Completion (❌ PLANNED)
+1. ❌ Login endpoint implementation
+2. ❌ Token refresh endpoint
+3. ❌ Logout endpoint with token cleanup
+4. ❌ Password reset functionality
 
 ### Phase 5: Enhancement (❌ NOT STARTED)
 1. ❌ Advanced querying

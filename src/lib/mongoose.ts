@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@/config';
+import { Logger } from '@/lib/winston';
 import type { ConnectOptions } from 'mongoose';
 import mongoose from 'mongoose';
 
@@ -19,12 +20,12 @@ const connectToDatabase: () => Promise<void> = async () => {
 
   try {
     await mongoose.connect(APP_CONFIG.MONOGO_URI, clientOptions);
-    console.log('Connected to MongoDB successfully', {
+    Logger.info('Connected to MongoDB successfully', {
       uri: APP_CONFIG.MONOGO_URI,
       clientOptions,
     });
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    Logger.error('Error connecting to MongoDB:', error);
     if (error instanceof Error) {
       throw new Error(`MongoDB connection error: ${error.message}`);
     }
@@ -34,12 +35,12 @@ const connectToDatabase: () => Promise<void> = async () => {
 const disconnectFromDatabase: () => Promise<void> = async () => {
   try {
     await mongoose.disconnect();
-    console.log('Disconnected from MongoDB successfully', {
+    Logger.info('Disconnected from MongoDB successfully', {
       uri: APP_CONFIG.MONOGO_URI,
       clientOptions,
     });
   } catch (error) {
-    console.error('Error disconnecting from MongoDB:', error);
+    Logger.error('Error disconnecting from MongoDB:', error);
     if (error instanceof Error) {
       throw new Error(`MongoDB disconnection error: ${error.message}`);
     }
