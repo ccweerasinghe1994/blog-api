@@ -1,5 +1,6 @@
 import { registerUser } from '@/controllers/v1/auth/auth.controller';
 import { loginHandler } from '@/controllers/v1/auth/login.controller';
+import { logoutHandler } from '@/controllers/v1/auth/logout.controller';
 import { refreshTokenHandler } from '@/controllers/v1/auth/token.controller';
 import { expressValidationMiddleware } from '@/middleware/expressValidationMiddleware';
 import {
@@ -47,5 +48,7 @@ AuthRouter.post(
   expressValidationMiddleware,
   refreshTokenHandler,
 );
+
+AuthRouter.post('/logout', logoutHandler);
 
 export { AuthRouter };
