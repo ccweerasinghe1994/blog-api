@@ -72,23 +72,44 @@ blog-api/
 ├── src/                           # TypeScript source code
 │   ├── config/                    # ✅ Configuration management
 │   │   └── index.ts              # Environment configuration with DB URI
+│   ├── controllers/               # ✅ Request handlers
+│   │   └── v1/                    # API version 1 controllers
+│   │       └── auth/              # Authentication controllers
+│   │           ├── auth.controller.ts    # User registration
+│   │           ├── login.controller.ts   # User login
+│   │           └── token.controller.ts   # Token refresh
 │   ├── lib/                       # ✅ Shared libraries
-│   │   └── mongoose.ts           # Database connection management  
+│   │   ├── mongoose.ts           # Database connection management
+│   │   ├── winston.ts            # Logger configuration
+│   │   └── jwt.ts                # JWT token utilities
 │   ├── middleware/                # ✅ Production middleware stack
-│   │   ├── compressionMiddleware.ts    # Response compression
-│   │   ├── cookieParserMiddleware.ts   # Cookie parsing
-│   │   ├── corsMiddleware.ts           # CORS handling
-│   │   ├── helmetMiddleware.ts         # Security headers
-│   │   ├── jsonMiddleware.ts           # JSON body parsing
-│   │   ├── rateLimiterMiddleware.ts    # Rate limiting
-│   │   ├── urlMiddleware.ts            # URL encoding
-│   │   └── index.ts                    # Middleware exports
+│   │   ├── compressionMiddleware.ts      # Response compression
+│   │   ├── cookieParserMiddleware.ts     # Cookie parsing
+│   │   ├── corsmiddleware.ts             # CORS handling
+│   │   ├── expressValidationMiddleware.ts # Validation error handling
+│   │   ├── helmetMiddleware.ts           # Security headers
+│   │   ├── jsonMiddleware.ts             # JSON body parsing
+│   │   ├── rateLimiterMiddleware.ts      # Rate limiting
+│   │   ├── urlMiddleware.ts              # URL encoding
+│   │   └── index.ts                      # Middleware exports
+│   ├── models/                    # ✅ Database models
+│   │   ├── user.model.ts         # User schema and model
+│   │   └── token.model.ts        # Refresh token schema
 │   ├── routes/                    # ✅ API routing structure
 │   │   └── v1/                    # API version 1
+│   │       ├── auth.ts           # Authentication routes
 │   │       └── index.ts          # V1 router with health endpoint
+│   ├── types/                     # ✅ TypeScript type definitions
+│   │   └── index.ts              # Response types and interfaces
+│   ├── utils/                     # ✅ Utility functions
+│   │   └── index.ts              # Common utilities
+│   ├── validation/                # ✅ Request validation
+│   │   ├── common.ts             # Common validation rules
+│   │   └── index.ts              # Validation exports
 │   └── server.ts                  # ✅ Express application with database
 ├── memory-bank/                   # 📚 Project documentation
 │   ├── projectbrief.md           # Core requirements
+│   ├── productContext.md          # Product overview and goals
 │   ├── techContext.md             # Technology details
 │   ├── systemPatterns.md          # Architecture patterns
 │   ├── activeContext.md           # Current work context
